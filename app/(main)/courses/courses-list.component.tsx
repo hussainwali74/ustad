@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { upsertUserProgress } from "@/actions/user_progress";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
+import Loading from "./loading";
 
 type Props = {
 	courses: (typeof coursesSchema.$inferSelect)[];
