@@ -1,5 +1,5 @@
 import { One, relations } from "drizzle-orm";
-import { integer, pgEnum, PgTable, pgTable, serial, text } from "drizzle-orm/pg-core";
+import { boolean, integer, pgEnum, PgTable, pgTable, serial, text } from "drizzle-orm/pg-core";
 
 export const coursesSchema = pgTable("courses", {
 	id: serial("id").primaryKey(),
@@ -56,10 +56,47 @@ export const challengesSchema = pgTable("challenges", {
 	question: text("question").notNull(),
 	order: integer("order").notNull(),
 });
+
 export const challengesRelations = relations(challengesSchema, ({ one, many }) => ({
 	lesson: one(lessonsSchema, {
 		fields: [challengesSchema.lessonId],
 		references: [lessonsSchema.id],
+	}),
+	challengeOptions: many(challengeOptions),
+	challengeProgress: many(challengeProgressSchema),
+}));
+
+export const challengeOptions = pgTable("challenge_options", {
+	id: serial("id").primaryKey(),
+	challengId: integer("challenge_id")
+		.references(() => challengesSchema.id, { onDelete: "cascade" })
+		.notNull(),
+	text: text("text").notNull(),
+	correct: boolean("correct").notNull(),
+	imgSrc: text("img_src"),
+	audioSrc: text("audio_src"),
+});
+
+export const challengeOptionsRelations = relations(challengeOptions, ({ one }) => ({
+	challenge: one(challengesSchema, {
+		fields: [challengeOptions.challengId],
+		references: [challengesSchema.id],
+	}),
+}));
+
+export const challengeProgressSchema = pgTable("challenge_progress", {
+	id: serial("id").primaryKey(),
+	userId: text("user_id").notNull(),
+	challengId: integer("challenge_id")
+		.references(() => challengesSchema.id, { onDelete: "cascade" })
+		.notNull(),
+	completed: boolean("completed").notNull().default(false),
+});
+
+export const challengeProgressRelations = relations(challengeProgressSchema, ({ one }) => ({
+	challenge: one(challengesSchema, {
+		fields: [challengeProgressSchema.challengId],
+		references: [challengesSchema.id],
 	}),
 }));
 
